@@ -119,7 +119,15 @@ def extract_page(page_id):
         return redirect("/")
         
     title, md_content = fetch_page_markdown(access_token, page_id)
-    return render_template("extract.html", title=title, content=md_content)
+    
+    # 💡 [AI 연동] 추출 성공 시 이어서 AI에게 퀴즈 생성 요청
+    if not md_content.startswith("# Error"):
+        from api.ai_generator import generate_quiz
+        quiz_result = generate_quiz(md_content)
+    else:
+        quiz_result = "> 마크다운 본문을 추출하지 못해 AI 문제를 출제할 수 없었습니다."
+        
+    return render_template("extract.html", title=title, content=md_content, quiz=quiz_result)
 
 if __name__ == "__main__":
     print("\n==================================")

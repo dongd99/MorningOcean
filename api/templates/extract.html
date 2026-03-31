@@ -2,26 +2,60 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>추출 결과: {{ title }}</title>
+    <title>AI 추출 결과: {{ title }}</title>
     <style>
-        body { font-family: sans-serif; background: #0c0c0c; color: white; max-width: 900px; margin: 50px auto; padding: 0 20px; }
-        .textarea-box { width: 100%; height: 60vh; background: #1a1a1a; color: #ddd; border: 1px solid #333; padding: 20px; font-family: 'Consolas', monospace; border-radius: 8px; font-size: 14px; margin-bottom: 20px; box-sizing: border-box; resize: vertical; margin-top:10px; }
-        .nav { margin-bottom: 20px; }
+        body { font-family: sans-serif; background: #0c0c0c; color: white; max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .textarea-box { width: 100%; height: 60vh; background: #1a1a1a; color: #ddd; border: 1px solid #333; padding: 20px; font-family: 'Consolas', monospace; border-radius: 8px; font-size: 14px; box-sizing: border-box; resize: vertical; margin-top:10px; }
+        .quiz-box { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
+        .nav { margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center; }
         .nav a { color: #3b82f6; text-decoration: none; font-weight:bold; }
-        h1 { margin-bottom: 5px; }
-        .subtitle { color: #888; margin-bottom: 10px; font-size: 0.95rem; }
+        h2 { margin-bottom: 5px; font-size: 1.3rem; border-bottom: 1px solid #333; padding-bottom:10px;}
+        .subtitle { color: #888; font-size: 0.9rem; }
+        .btn { background: #3b82f6; color: white; padding: 10px 20px; border:none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; }
+        .btn:hover { background: #2563eb; transform: scale(1.05); }
+        @media (max-width: 768px) { .grid-container { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="nav">
         <a href="/pages">← 목록으로 돌아가기</a>
+        <button class="btn" onclick="downloadQuiz()">💾 문제 파일 다운로드 (.md)</button>
     </div>
     
-    <h1>Markdown 추출 결과</h1>
-    <p class="subtitle">이 텍스트 내용 전체를 복사해서 AI(LLM)에게 전달해주시면 됩니다.</p>
+    <div style="margin-bottom: 30px;">
+        <h1 style="margin-bottom:5px;">출제 완료: {{ title }}</h1>
+        <p class="subtitle">[API 참고] 플러터 등 모바일 앱과 호환 시 응답 JSON에 담긴 "content", "quiz" 키(Key)로 각각 전송됩니다.</p>
+    </div>
+
+    <div class="grid-container">
+        <!-- 왼쪽 원본 마크다운 영역 -->
+        <div>
+            <h2>📝 추출된 마크다운 원본</h2>
+            <textarea class="textarea-box" readonly>{{ content }}</textarea>
+        </div>
+        
+        <!-- 오른쪽 AI 퀴즈 결과 영역 -->
+        <div>
+            <h2 style="color: #60a5fa;">🤖 AI 생성 쪽지시험</h2>
+            <textarea id="quizText" class="textarea-box quiz-box" readonly>{{ quiz }}</textarea>
+        </div>
+    </div>
     
-    <textarea class="textarea-box" readonly>{{ content }}</textarea>
-    
-    <p class="subtitle" style="font-size:0.8rem; text-align:right;">[API 참고] 플러터 앱과 호환 시 이 화면 대신 String 타입으로 꽂히게 됩니다.</p>
+    <script>
+        function downloadQuiz() {
+            const quizContent = document.getElementById("quizText").value;
+            const blob = new Blob([quizContent], { type: "text/markdown;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            // 파일명에 타이틀이 깨지지 않도록 인코딩 방지용 safe 처리 가정
+            a.download = "AI_예상문제_추출본.md";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
 </body>
 </html>
