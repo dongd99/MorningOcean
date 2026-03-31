@@ -1,51 +1,62 @@
 import os
+import json
 from openai import OpenAI
 
 def generate_quiz(markdown_content):
     """
-    추출된 마크다운 전문을 기반으로 AI에게 퀴즈 및 쪽지시험 생성을 요청합니다.
-    [💡 향후 Local LLM 연동 팁]
-    Ollama, vLLM 등의 로컬 LLM을 사용하실 경우, 발급키를 무시하고 
-    api_base에 해당하는 OPENAI_API_BASE 환경 변수만 "http://localhost:11434/v1" 등으로 변경하시면
-    코드 수정 없이 똑같은 OpenAI 규격으로 문제없이 작동합니다!
+    마크다운을 바탕으로 AI에게 분석을 시키되, [앱 개발 및 DB 활용]을 위해
+    반드시 10개의 '객관식' 문제를 'JSON' 구조로만 반환하도록 강제합니다!
     """
     api_key = os.getenv("OPENAI_API_KEY")
     api_base = os.getenv("OPENAI_API_BASE")
     
     if not api_key:
-        return "⚠️ 오류: 서버 환경에 'OPENAI_API_KEY' 값이 누락되어 인공지능이 동작할 수 없습니다. Vercel 환경 변수나 .env 파일에 OpenAI 키를 반드시 넣어주세요."
+        return '{"error": "OPENAI_API_KEY 누락됨"}'
         
     try:
-        # 클라이언트 생성 시 Base URL을 옵셔널로 받아들임
         client = OpenAI(
             api_key=api_key,
             base_url=api_base if api_base else "https://api.openai.com/v1"
         )
         
         system_prompt = """
-당신은 시험 출제를 전담하는 친절하고 전문적인 1타 강사 선생님입니다. 
-제공돤 학생의 '노션 강의 노트 요약본(마크다운)'을 읽고 분석하여, 문서를 완벽히 이해했는지 점검할 수 있는 핵심 예상 문제를 출제해주세요.
+당신은 시험 출제를 전담하는 강사이자 소프트웨어 데이터 변환기입니다.
+제공된 학생의 '노션 강의 노트(마크다운)'를 완벽히 분석하여, 핵심 개념을 묻는 **딱 10개의 4지선다 객관식 문제**를 출제해야 합니다.
 
-[작성 규칙 지침]
-1. 가장 중요한 개념을 묻는 객관식 3문제 (보기 4개 포함, 헷갈리기 쉬운 오답 배치)
-2. 확실히 암기했는지 체크하는 주관식 (단답형 또는 서술형) 2문제 출제
-3. 문제들이 끝난 뒤 빈 줄을 많이 띄워 스포일러를 방지하고, 맨 밑부분에 [💯 정답 및 해설] 블럭을 따로 모아서 상세히 기재할 것.
-4. 결과물 전체는 가독성이 아주 좋은 깔끔한 마크다운(.md) 서식으로 응답해 줄 것.
-5. 시험에 응하는 학생을 격려하는 부드러운 말투로 시작과 끝을 장식할 것.
+[🚨 절대 엄수 규칙 🚨]
+1. 오직 10개의 객관식(MULTIPLE_CHOICE)만 만들 것! (주관식 금지)
+2. 당신의 응답은 서버 DB 모델과 직결되므로, 절대로 인사말이나 마크다운 코드블록 기호(```json 등)를 붙이지 마세요!
+3. 무조건 아래 예시의 **JSON 배열 텍스트 형태**로만 출력하세요!
+
+[예시 구조]
+[
+  {
+    "question": "다음 중 파이썬의 리스트에 대한 설명으로 옳은 것은?",
+    "options": ["크기 고정", "수정 불가능", "다양한 자료형 저장 가능", "인덱싱 불가"],
+    "answer_index": 2,
+    "explanation": "파이썬의 리스트는 서로 다른 자료형 요소를 자유롭게 추가/삭제할 수 있는 가변 컨테이너이기 때문입니다."
+  },
+  ... (총 10문제)
+]
 """
-        
         response = client.chat.completions.create(
-            # 로컬 LLM을 연동하실 경우 이 모델명을 로컬 모델명(예: "llama3")으로 바꾸셔야 합니다.
             model="gpt-4o-mini", 
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"다음 분석 문서를 바탕으로 쪽지 시험 문제를 5개 만들어 주세요:\n\n{markdown_content}"}
+                {"role": "user", "content": f"다음 문서를 바탕으로 JSON 형태로 10문제를 출제해 줘:\n\n{markdown_content}"}
             ],
-            temperature=0.6,
-            max_tokens=2500
+            temperature=0.2, # 기계적이고 일관된 JSON을 얻어내기 위해 창의성(온도)을 확 낮춥니다.
+            max_tokens=3500
         )
         
-        return response.choices[0].message.content
+        # 앞뒤에 붙은 불필요한 공백이나 마크다운 기호를 떼어냅니다(안전장치).
+        result_text = response.choices[0].message.content.strip()
+        if result_text.startswith("```json"):
+            result_text = result_text.replace("```json", "", 1).strip()
+        if result_text.endswith("```"):
+            result_text = result_text[:-3].strip()
+            
+        return result_text
         
     except Exception as e:
-        return f"> ❌ AI 문제를 점검하던 중 오류가 발생했습니다: {str(e)}\n\nAPI 키가 만료되었거나 한도를 초과했을 수 있습니다."
+        return json.dumps({"error": str(e)}, ensure_ascii=False)
