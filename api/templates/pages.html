@@ -11,9 +11,32 @@
         .btn:hover { background: #2563eb; }
         .empty { color: #888; font-style: italic; background: #111; padding: 20px; border-radius: 8px; text-align: center; }
         .json-note { font-size: 0.85rem; color: #777; margin-top: 40px; border-top: 1px dashed #333; padding-top: 20px;}
+        
+        /* 로딩 애니메이션 CSS */
+        .loader {
+            border: 6px solid #333;
+            border-top: 6px solid #3b82f6;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text { color: white; text-align: center; }
+        .loading-sub { font-size: 14px; color: #aaa; font-weight: normal; margin-top: 10px; display: block; }
     </style>
 </head>
 <body>
+    <!-- 팝업 로딩 오버레이 -->
+    <div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; flex-direction:column; justify-content:center; align-items:center; backdrop-filter: blur(5px);">
+        <div class="loader"></div>
+        <h2 class="loading-text">페이지를 분석하고 변환 중입니다...<br><span class="loading-sub">(마크다운 추출에는 문서 길이에 따라 다소 시간이 소요될 수 있습니다)</span></h2>
+    </div>
+
     <h1>🏠 {{ workspace_name }} 작업 공간</h1>
     <p style="color: #aaa; margin-bottom: 30px;">아래는 동의 과정에서 <strong>공유를 허락하신 페이지</strong> 목록입니다. API Search를 통해 실시간으로 긁어왔습니다.</p>
     
@@ -21,7 +44,7 @@
         {% for page in pages %}
         <div class="page-item">
             <h3 style="margin:0;">📄 {{ page.title }}</h3>
-            <a href="/extract/{{ page.id }}" class="btn">내용 추출하기</a>
+            <a href="javascript:void(0);" onclick="startExtraction('/extract/{{ page.id }}')" class="btn">내용 추출하기</a>
         </div>
         {% endfor %}
     {% else %}
@@ -35,5 +58,14 @@
     <div class="json-note">
         [API 설계 참고] 이 화면의 데이터들은 추후 플러터 모바일 앱 연동 시 <code>JSON Array</code> 객체 구조로 반환해 드리도록 라우트 변경이 가능합니다.
     </div>
+
+    <script>
+        function startExtraction(url) {
+            // 로딩 오버레이 표시
+            document.getElementById('loading-overlay').style.display = 'flex';
+            // 실제 데이터 추출 백엔드 라우트로 이동
+            window.location.href = url;
+        }
+    </script>
 </body>
 </html>
