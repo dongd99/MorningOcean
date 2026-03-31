@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>추출 결과: {{ title }}</title>
+    <style>
+        body { font-family: sans-serif; background: #0c0c0c; color: white; max-width: 900px; margin: 50px auto; padding: 0 20px; }
+        .textarea-box { width: 100%; height: 60vh; background: #1a1a1a; color: #ddd; border: 1px solid #333; padding: 20px; font-family: 'Consolas', monospace; border-radius: 8px; font-size: 14px; margin-bottom: 20px; box-sizing: border-box; resize: vertical; margin-top:10px; }
+        .nav { margin-bottom: 20px; }
+        .nav a { color: #3b82f6; text-decoration: none; font-weight:bold; }
+        h1 { margin-bottom: 5px; }
+        .subtitle { color: #888; margin-bottom: 10px; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/pages">← 목록으로 돌아가기</a>
+    </div>
+    
+    <h1>Markdown 추출 결과</h1>
+    <p class="subtitle">이 텍스트 내용 전체를 복사해서 AI(LLM)에게 전달해주시면 됩니다.</p>
+    
+    <textarea class="textarea-box" readonly>{{ content }}</textarea>
+    
+    <p class="subtitle" style="font-size:0.8rem; text-align:right;">[API 참고] 플러터 앱과 호환 시 이 화면 대신 String 타입으로 꽂히게 됩니다.</p>
+</body>
+</html>

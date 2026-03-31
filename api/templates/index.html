@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Notion Fetch API Test</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0c0c0c; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1a1a1a; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; }
+        .btn { background: #EAEAEA; color: #111; text-decoration: none; padding: 15px 30px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; display: inline-block; transition: 0.2s; }
+        .btn:hover { background: #FFF; transform: scale(1.05); }
+        h1 { margin-top:0; }
+        .note { border-left: 4px solid #3b82f6; padding-left: 15px; text-align: left; margin: 30px 0; background: #222; padding: 15px; border-radius: 4px; font-size: 0.9rem; line-height: 1.6; color: #ddd; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Notion 통합 연결하기</h1>
+        
+        <div class="note">
+            🚀 <strong>안내 (플러터 개발 시 참고사항) :</strong><br>
+            이 페이지는 Flask 서버(백엔드)의 API 기능을 점검하기 위한 웹 프론트입니다.<br>
+            향후 <b>Flutter 앱</b>을 개발하실 때에는 웹서버의 이곳(/)을 띄우는 것이 아니라<br>
+            코드로 전달되는 <code>auth_link</code> 주소로 모바일 웹뷰 로그인을 띄우게 됩니다.
+        </div>
+
+        <a href="{{ auth_link }}" class="btn">🚀 노션 계정 연동 및 로그인</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ workspace_name }} - 허용된 페이지 목록</title>
+    <style>
+        body { font-family: sans-serif; background: #0c0c0c; color: white; max-width: 800px; margin: 50px auto; padding: 0 20px; }
+        .page-item { background: #1a1a1a; padding: 20px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
+        h1 { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+        .btn { background: #3b82f6; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; transition: background 0.2s;}
+        .btn:hover { background: #2563eb; }
+        .empty { color: #888; font-style: italic; background: #111; padding: 20px; border-radius: 8px; text-align: center; }
+        .json-note { font-size: 0.85rem; color: #777; margin-top: 40px; border-top: 1px dashed #333; padding-top: 20px;}
+    </style>
+</head>
+<body>
+    <h1>🏠 {{ workspace_name }} 작업 공간</h1>
+    <p style="color: #aaa; margin-bottom: 30px;">아래는 동의 과정에서 <strong>공유를 허락하신 페이지</strong> 목록입니다. API Search를 통해 실시간으로 긁어왔습니다.</p>
+    
+    {% if pages %}
+        {% for page in pages %}
+        <div class="page-item">
+            <h3 style="margin:0;">📄 {{ page.title }}</h3>
+            <a href="/extract/{{ page.id }}" class="btn">내용 추출하기</a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="empty">가져올 수 있는 페이지가 없습니다. 메인으로 돌아가서 다시 로그인하며 권한 페이지를 체크해 주세요!</p>
+    {% endif %}
+    
+    <div style="margin-top: 50px;">
+        <a href="/" style="color: #666; text-decoration: none;">← 처음 로그인 화면으로 돌아가기</a>
+    </div>
+
+    <div class="json-note">
+        [API 설계 참고] 이 화면의 데이터들은 추후 플러터 모바일 앱 연동 시 <code>JSON Array</code> 객체 구조로 반환해 드리도록 라우트 변경이 가능합니다.
+    </div>
+</body>
+</html>
