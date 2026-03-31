@@ -4,6 +4,7 @@ from flask import Flask, redirect, request, session, render_template, jsonify
 from dotenv import load_dotenv
 import sys
 import os
+from urllib.parse import quote
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from extractor import fetch_page_markdown
 
@@ -30,7 +31,8 @@ def index():
     [💡 Flutter 연동 시 참고 포인트]
     모바일 앱(Flutter) 환경에서는 웹뷰(Webview) 플러그인이나 url_launcher 등을 통해 아래의 `auth_link` URL 창을 직접 띄워주게 됩니다.
     """
-    auth_link = f"{AUTHORIZE_URL}?owner=user&client_id={NOTION_CLIENT_ID}&redirect_uri={REDIRECT_URI}&response_type=code"
+    encoded_redirect = quote(REDIRECT_URI)
+    auth_link = f"{AUTHORIZE_URL}?owner=user&client_id={NOTION_CLIENT_ID}&redirect_uri={encoded_redirect}&response_type=code"
     
     # 지금은 웹 테스트용이니까 HTML을 반환합니다.
     return render_template("index.html", auth_link=auth_link)
