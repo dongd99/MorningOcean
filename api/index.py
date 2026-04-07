@@ -125,7 +125,7 @@ def extract_page(page_id):
     quiz_result_md = "> 알 수 없는 오류로 퀴즈를 생성하지 못했습니다."
     
     if not md_content.startswith("# Error"):
-        from api.ai_generator import generate_quiz
+        from ai_generator import generate_quiz
         quiz_json_str = generate_quiz(md_content)
         
         try:

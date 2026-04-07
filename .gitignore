@@ -23,3 +23,6 @@ __pycache__/
 
 # VSCode
 .vscode/
+
+# SQLite DB
+*.db
